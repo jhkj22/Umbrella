@@ -10,11 +10,18 @@ import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
+import android.view.View
 import androidx.annotation.RequiresApi
+import androidx.core.graphics.minus
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-class AlignmentOriginCanvas(context: Context, attrs: AttributeSet) : CanvasBase(context, attrs) {
-    private val pin: Bitmap = ResourceUtil.getBitmap(context, R.drawable.ic_model_center_pin)
+class AlignmentOriginCanvas(context: Context, attrs: AttributeSet) : View(context, attrs) {
+    private val iconPin: Bitmap = ResourceUtil.getBitmap(context, R.drawable.ic_model_center_pin)
+    private val posPin = PointF()
+
+    private val alignment = TwoPointAlignment
+
+    private val icMap = ImageCanvasMap()
 
     private var mScaleGestureDetector: ScaleGestureDetector? = null
     private var mGestureDetector: GestureDetector? = null
@@ -31,8 +38,9 @@ class AlignmentOriginCanvas(context: Context, attrs: AttributeSet) : CanvasBase(
             }
 
             override fun onScale(detector: ScaleGestureDetector): Boolean {
-                val scale = detector.scaleFactor
-                bitmapMatrix.postScale(scale, scale, touchPoint.x, touchPoint.y)
+                icMap.zoom(detector.scaleFactor)
+                updateCp()
+
                 invalidate()
                 super.onScale(detector)
                 return true
@@ -47,16 +55,13 @@ class AlignmentOriginCanvas(context: Context, attrs: AttributeSet) : CanvasBase(
             distanceY: Float
         ): Boolean {
             if (e1.getPointerId(0) == e2.getPointerId(0)) {
-                bitmapMatrix.postTranslate(-distanceX, -distanceY)
+                icMap.moveC(PointF(distanceX, distanceY))
+                updateCp()
+
                 invalidate()
             }
             return super.onScroll(e1, e2, distanceX, distanceY)
         }
-    }
-
-    init {
-        mScaleGestureDetector = ScaleGestureDetector(context, mScaleGestureListener)
-        mGestureDetector = GestureDetector(context, mSimpleOnGestureListener)
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -65,18 +70,52 @@ class AlignmentOriginCanvas(context: Context, attrs: AttributeSet) : CanvasBase(
                 || super.onTouchEvent(event)
     }
 
+    init {
+        alignment.initCp()
+
+        icMap.sizeImage.right = alignment.image.width
+        icMap.sizeImage.bottom = alignment.image.height
+
+        icMap.cpCanvas = alignment.model1.cp
+
+        mScaleGestureDetector = ScaleGestureDetector(context, mScaleGestureListener)
+        mGestureDetector = GestureDetector(context, mSimpleOnGestureListener)
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+
+        icMap.sizeCanvas.right = w
+        icMap.sizeCanvas.bottom = h
+
+        icMap.scale = icMap.sizeCanvas.height().toFloat() / icMap.sizeImage.height()
+
+        posPin.set(w * .5f, h * .4f)
+
+        val dpI = alignment.model1.cp - icMap.mapC2I(posPin)
+        icMap.moveI(dpI)
+    }
+
+    fun updateCp() {
+        alignment.model1.cp.set(icMap.mapC2I(posPin))
+    }
+
     @SuppressLint("DrawAllocation")
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        canvas ?: return
+        fun drawBitmap() {
+            canvas.drawBitmap(alignment.image, null, icMap.getRectImageC(), null)
+        }
 
         fun drawPin() {
-            val x = (width - pin.width) / 2f
-            val y = height / 2f - pin.height - 50
+            val x = posPin.x - iconPin.width / 2f
+            val y = posPin.y - iconPin.height
 
-            canvas.drawBitmap(pin, x, y, null)
+            canvas.drawBitmap(iconPin, x, y, null)
         }
+
+        drawBitmap()
         drawPin()
     }
 }

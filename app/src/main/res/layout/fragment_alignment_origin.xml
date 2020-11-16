@@ -9,7 +9,7 @@
         android:orientation="vertical">
 
         <view
-            android:id="@+id/view"
+            android:id="@+id/canvas_model_origin"
             class="com.example.umbrella.AlignmentOriginCanvas"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

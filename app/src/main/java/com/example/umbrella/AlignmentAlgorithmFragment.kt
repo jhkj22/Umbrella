@@ -9,6 +9,9 @@ import kotlinx.android.synthetic.main.fragment_alignment_algorithm.*
 import kotlinx.android.synthetic.main.fragment_alignment_type.radioGroup
 
 class AlignmentAlgorithmFragment : Fragment() {
+
+    var onNextClicked: (() -> Unit)? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -22,5 +25,9 @@ class AlignmentAlgorithmFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         radioGroup.check(radioNc.id)
+
+        button5.setOnClickListener {
+            onNextClicked?.invoke()
+        }
     }
 }
