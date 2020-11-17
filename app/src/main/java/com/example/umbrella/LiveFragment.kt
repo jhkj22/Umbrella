@@ -21,14 +21,13 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.fragment_live.*
 
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class LiveFragment : Fragment(), WifiP2pManager.ChannelListener {
 
     private fun log(text: String) {
-        activity?.runOnUiThread {
+        /*activity?.runOnUiThread {
             var t = textView.text.toString()
             if (t.isNotEmpty()) {
                 t += System.lineSeparator()
@@ -36,7 +35,9 @@ class LiveFragment : Fragment(), WifiP2pManager.ChannelListener {
             t += text
 
             textView.text = t
-        }
+        }*/
+
+        Log(text)
     }
 
     override fun onCreateView(
@@ -66,12 +67,6 @@ class LiveFragment : Fragment(), WifiP2pManager.ChannelListener {
                 discover()
             }
         }, 1000)
-
-        liveThread.onImageUpdated = {
-            activity?.runOnUiThread {
-                imageView2.setImageBitmap(liveThread.bitmap)
-            }
-        }
     }
 
     private fun setupActionBar() {
@@ -91,7 +86,7 @@ class LiveFragment : Fragment(), WifiP2pManager.ChannelListener {
         }
     }
 
-    private val liveThread = LiveThread()
+    private val liveThread = LiveThread
 
     override fun onResume() {
         super.onResume()

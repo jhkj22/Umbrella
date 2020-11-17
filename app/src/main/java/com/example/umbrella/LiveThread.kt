@@ -7,7 +7,7 @@ import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Socket
 
-class LiveThread {
+object LiveThread {
 
     var address: InetAddress? = null
     var bitmap: Bitmap? = null

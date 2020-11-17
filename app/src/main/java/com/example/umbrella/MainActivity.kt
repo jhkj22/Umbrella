@@ -1,7 +1,6 @@
 package com.example.umbrella
 
 import android.Manifest
-import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -27,40 +26,6 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.container, fragment).commit()
     }
 
-    private val alignment = TwoPointAlignment
-
-    private fun toAlignmentType() {
-        val fragment = AlignmentTypeFragment()
-        fragment.onNextClicked = {
-            toAlignmentAlgorithm()
-        }
-
-        addFragment(fragment)
-    }
-
-    private fun toAlignmentAlgorithm() {
-        val fragment = AlignmentAlgorithmFragment()
-        fragment.onNextClicked = {
-            toAlignmentOrigin()
-        }
-
-        addFragment(fragment)
-    }
-
-    private fun toAlignmentOrigin() {
-        val fragment = AlignmentOriginFragment()
-        fragment.onNextClicked = {
-            toAlignmentModelSize()
-        }
-
-        addFragment(fragment)
-    }
-
-    private fun toAlignmentModelSize() {
-        val fragment = AlignmentModelSizeFragment()
-        addFragment(fragment)
-    }
-
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,8 +39,6 @@ class MainActivity : AppCompatActivity() {
                 Manifest.permission.BLUETOOTH_ADMIN
             ), 1
         )
-
-        alignment.image = BitmapFactory.decodeResource(resources, R.drawable.sample_image)
 
         addFragment(HomeFragment())
         //addFragment(LiveFragment())

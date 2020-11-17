@@ -2,6 +2,7 @@ package com.example.umbrella
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -23,8 +24,21 @@ class AlignmentOriginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        activity?.title = "モデル中心を決めてください"
+        setHasOptionsMenu(true)
+
         button4.setOnClickListener {
             onNextClicked?.invoke()
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                activity?.supportFragmentManager?.popBackStack()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 }
