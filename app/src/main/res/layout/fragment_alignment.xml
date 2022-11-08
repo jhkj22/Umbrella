@@ -9,8 +9,8 @@
         android:orientation="vertical">
 
         <view
-            android:id="@+id/canvas_model_origin"
-            class="com.example.umbrella.AlignmentOriginCanvas"
+            android:id="@+id/canvas_alignment"
+            class="com.example.umbrella.AlignmentCanvas"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </LinearLayout>
@@ -20,7 +20,7 @@
         android:layout_height="match_parent">
 
         <Button
-            android:id="@+id/button4"
+            android:id="@+id/button_next"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -16,6 +16,12 @@ fun Log(msg: String) {
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        init {
+            System.loadLibrary("opencv_java4")
+        }
+    }
+
     fun setupBackButton(enableBackButton: Boolean) {
         val actionBar: ActionBar? = supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(enableBackButton)
@@ -41,7 +47,5 @@ class MainActivity : AppCompatActivity() {
         )
 
         addFragment(HomeFragment())
-        //addFragment(LiveFragment())
-        //toAlignmentOrigin()
     }
 }

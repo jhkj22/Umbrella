@@ -13,16 +13,31 @@ class ImageCanvasMap {
     var scale: Float = 1f
     var cpCanvas = PointF(0.5f, 0.5f)
 
+    private val onChangedListeners: ArrayList<() -> Unit> = arrayListOf()
+
+    fun setOnChangedListener(callback: (() -> Unit)) {
+        onChangedListeners.add(callback)
+    }
+
+    private fun notifyChanges() {
+        for (callback in onChangedListeners) {
+            callback.invoke()
+        }
+    }
+
     fun moveI(dp: PointF) {
         cpCanvas += dp
+        notifyChanges()
     }
 
     fun moveC(dp: PointF) {
         cpCanvas += PointF(dp.x / scale, dp.y / scale)
+        notifyChanges()
     }
 
     fun zoom(ratio: Float) {
         scale *= ratio
+        notifyChanges()
     }
 
     fun mapI2C(pI: PointF): PointF {

@@ -1,9 +1,7 @@
 package com.example.umbrella
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.*
-import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_DOWN
@@ -12,22 +10,26 @@ import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.core.graphics.minus
 import androidx.core.graphics.toRectF
+import com.example.umbrella.core.Inspection
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.min
 
 
-class AlignmentModelSizeCanvas(context: Context, attrs: AttributeSet) : View(context, attrs) {
-    private val alignment = TwoPointAlignment
-    private val icMap = ImageCanvasMap()
+class AlignmentCanvasPageModelSize(
+    override val view: View, override val icMap: ImageCanvasMap
+) : CanvasPage {
+
+    private val alignment = Inspection.alignment
 
     private fun px(dp: Int): Float {
-        val metrics = context.resources.displayMetrics
+        val metrics = view.context.resources.displayMetrics
         return dp * metrics.density
     }
 
     private fun pxT(sp: Float): Float {
         return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_SP, sp, context.resources.displayMetrics
+            TypedValue.COMPLEX_UNIT_SP, sp, view.context.resources.displayMetrics
         )
     }
 
@@ -52,23 +54,20 @@ class AlignmentModelSizeCanvas(context: Context, attrs: AttributeSet) : View(con
             override fun onScale(detector: ScaleGestureDetector): Boolean {
                 icMap.zoom(detector.scaleFactor)
 
-                invalidate()
+                val posC = PointF(
+                    icMap.sizeCanvas.width() * .5f,
+                    icMap.sizeCanvas.height() * .4f
+                )
+
+                val dpC = icMap.mapI2C(alignment.model1.cp) - posC
+                icMap.moveC(dpC)
+
+                view.invalidate()
 
                 super.onScale(detector)
                 return true
             }
         }
-
-    init {
-        alignment.initAreaModel()
-
-        icMap.sizeImage.right = alignment.image.width
-        icMap.sizeImage.bottom = alignment.image.height
-
-        icMap.cpCanvas = alignment.model1.cp
-
-        mScaleGestureDetector = ScaleGestureDetector(context, mScaleGestureListener)
-    }
 
     private var dragging = false
 
@@ -94,14 +93,14 @@ class AlignmentModelSizeCanvas(context: Context, attrs: AttributeSet) : View(con
         val w = abs(dp.x)
         val h = abs(dp.y)
 
-        val s = min(w, h).toInt()
+        val s = max(1, min(w, h).toInt())
 
         alignment.model1.areaModel.left = alignment.model1.cp.x.toInt() - s
         alignment.model1.areaModel.right = alignment.model1.cp.x.toInt() + s
         alignment.model1.areaModel.top = alignment.model1.cp.y.toInt() - s
         alignment.model1.areaModel.bottom = alignment.model1.cp.y.toInt() + s
 
-        invalidate()
+        view.invalidate()
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -111,29 +110,24 @@ class AlignmentModelSizeCanvas(context: Context, attrs: AttributeSet) : View(con
         }
 
         return mScaleGestureDetector!!.onTouchEvent(event)
-                || super.onTouchEvent(event)
     }
 
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
+    init {
+        val w = (icMap.sizeCanvas.width() / 2 / icMap.scale).toInt()
+        val wRound = (w / 50) * 50
+        alignment.initAreaModel(wRound, wRound)
 
-        icMap.sizeCanvas.right = w
-        icMap.sizeCanvas.bottom = h
-
-        icMap.scale = icMap.sizeCanvas.height().toFloat() / icMap.sizeImage.height()
+        mScaleGestureDetector = ScaleGestureDetector(view.context, mScaleGestureListener)
     }
 
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
-
-        fun drawBitmap() {
-            canvas.drawBitmap(alignment.image, null, icMap.getRectImageC(), null)
-        }
 
         val rectModelC = icMap.mapI2C(alignment.model1.areaModel.toRectF())
 
         fun drawBack() {
+            val width = icMap.sizeCanvas.width()
+            val height = icMap.sizeCanvas.height()
             // top, bottom, left, right
             val rects = arrayOf(
                 RectF(0f, 0f, width.toFloat(), rectModelC.top),
@@ -203,7 +197,6 @@ class AlignmentModelSizeCanvas(context: Context, attrs: AttributeSet) : View(con
             )
         }
 
-        drawBitmap()
         drawBack()
         drawFrame()
         drawKnob()

@@ -5,10 +5,11 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.fragment_alignment_origin.*
+import kotlinx.android.synthetic.main.fragment_alignment.*
 
-class AlignmentOriginFragment : Fragment() {
+class AlignmentFragment : Fragment() {
 
     var onNextClicked: (() -> Unit)? = null
 
@@ -18,27 +19,47 @@ class AlignmentOriginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        return inflater.inflate(R.layout.fragment_alignment_origin, container, false)
+        return inflater.inflate(R.layout.fragment_alignment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        activity?.title = "モデル中心を決めてください"
+        activity?.title = canvas_alignment.getTitle()
         setHasOptionsMenu(true)
 
-        button4.setOnClickListener {
-            onNextClicked?.invoke()
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            toPrev()
+        }
+
+        button_next.setOnClickListener {
+            toNext()
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                activity?.supportFragmentManager?.popBackStack()
+                toPrev()
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun toNext() {
+        if (!canvas_alignment.toNext()) {
+            onNextClicked?.invoke()
+        } else {
+            activity?.title = canvas_alignment.getTitle()
+        }
+    }
+
+    private fun toPrev() {
+        if (!canvas_alignment.toPrev()) {
+            activity?.supportFragmentManager?.popBackStack()
+        } else {
+            activity?.title = canvas_alignment.getTitle()
         }
     }
 }

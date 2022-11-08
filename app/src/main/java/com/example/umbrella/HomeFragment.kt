@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import com.example.umbrella.core.Inspection
 import kotlinx.android.synthetic.main.fragment_home.*
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -19,7 +20,7 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        return inflater.inflate(com.example.umbrella.R.layout.fragment_home, container, false)
+        return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -27,7 +28,8 @@ class HomeFragment : Fragment() {
 
         setupActionBar()
 
-        alignment.image = BitmapFactory.decodeResource(resources, R.drawable.sample_image)
+        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.sample_image)
+        inspection.image = bitmap
 
         button_live.setOnClickListener {
             replaceFragment(LiveFragment())
@@ -38,6 +40,13 @@ class HomeFragment : Fragment() {
             activity?.setupBackButton(true)
 
             toAlignmentType()
+        }
+
+        button_blob.setOnClickListener {
+            val activity = activity as MainActivity?
+            activity?.setupBackButton(true)
+
+            toBlob()
         }
     }
 
@@ -65,7 +74,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private val alignment = TwoPointAlignment
+    private val inspection = Inspection
 
     private fun toAlignmentType() {
         val fragment = AlignmentTypeFragment()
@@ -79,23 +88,19 @@ class HomeFragment : Fragment() {
     private fun toAlignmentAlgorithm() {
         val fragment = AlignmentAlgorithmFragment()
         fragment.onNextClicked = {
-            toAlignmentOrigin()
+            toAlignment()
         }
 
         replaceFragment(fragment)
     }
 
-    private fun toAlignmentOrigin() {
-        val fragment = AlignmentOriginFragment()
-        fragment.onNextClicked = {
-            toAlignmentModelSize()
-        }
-
+    private fun toAlignment() {
+        val fragment = AlignmentFragment()
         replaceFragment(fragment)
     }
 
-    private fun toAlignmentModelSize() {
-        val fragment = AlignmentModelSizeFragment()
+    private fun toBlob() {
+        val fragment = BlobFragment()
         replaceFragment(fragment)
     }
 }
